@@ -8,8 +8,10 @@ authors = ["Yuuki Takahashi <20282867+yktakaha4@users.noreply.github.com>"]
 python = "^3.9"
 Django = "^3.2.4"
 celery = "^5.1.0"
+django-extensions = "^3.1.3"
 
 [tool.poetry.dev-dependencies]
+black = "^21.5b2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
