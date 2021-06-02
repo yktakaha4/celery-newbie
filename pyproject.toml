@@ -6,6 +6,7 @@ authors = ["Yuuki Takahashi <20282867+yktakaha4@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+Django = "^3.2.4"
 
 [tool.poetry.dev-dependencies]
 
