@@ -17,9 +17,10 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path
 
-from proj.views import TaskView
+from proj.views import TaskExecuteView, TaskResultView
 
 urlpatterns = [
-    url(r'^task/?$', TaskView.as_view()),
+    url('task/execute/', TaskExecuteView.as_view()),
+    url('task/result/', TaskResultView.as_view()),
     path('admin/', admin.site.urls)
 ]

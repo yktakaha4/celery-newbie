@@ -1,19 +1,55 @@
+from celery.result import AsyncResult
 from django.views.generic import View
 from django.http import JsonResponse, HttpRequest
 
-from proj.celery import count
+from proj.celery import count, count_divisible_three
 
 
-class TaskView(View):
+class TaskExecuteView(View):
     def get(self, request: HttpRequest):
-        task_name = request.GET.get('name')
-        called = False
+        try:
+            task_name = request.GET.get('name')
+            task = None
 
-        if task_name == 'count':
-            count.delay()
-            called = True
+            if task_name == 'count':
+                task = count.apply_async()
+            elif task_name == 'count_divisible_three':
+                number = int(request.GET['number'])
+                task = count_divisible_three.apply_async([number])
 
-        return JsonResponse({
-            'task_name': task_name,
-            'called': called
-        })
+            task_id = task.id if task else None
+
+            return JsonResponse({
+                'task_name': task_name,
+                'task_id': task_id,
+            })
+        except Exception as e:
+            return JsonResponse({
+                'error': True,
+                'message': str(e)
+            })
+
+
+class TaskResultView(View):
+    def get(self, request: HttpRequest):
+        try:
+            task_id = request.GET['id']
+            task = AsyncResult(task_id)
+
+            status = None
+            result = None
+            if task:
+                status = task.status
+                if status == 'SUCCESS':
+                    result = task.get()
+
+            return JsonResponse({
+                'task_id': task_id,
+                'status': status,
+                'result': result,
+            })
+        except Exception as e:
+            return JsonResponse({
+                'error': True,
+                'message': str(e)
+            })
