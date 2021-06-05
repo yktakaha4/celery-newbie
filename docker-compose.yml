@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  django:
+    build: .
+    command: make django
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    links:
+      - celery
+      - redis
+  celery:
+    build: .
+    command: make celery
+    volumes:
+      - .:/app
+    links:
+      - redis
+  redis:
+    image: redis:6.2.4
+    ports:
+      - "6379:6379"

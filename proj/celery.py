@@ -1,6 +1,8 @@
 import os
+from abc import ABC
+from time import sleep
 
-from celery import Celery
+from celery import Celery, Task
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
@@ -17,6 +19,21 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request!r}')
+class BaseTask(Task, ABC):
+    def on_success(self, retval, task_id, args, kwargs):
+        print(f'success: {retval=}, {task_id=}, {args=}, {kwargs=}')
+
+    def on_retry(self, exc, task_id, args, kwargs, einfo):
+        print(f'retry: {exc=}, {task_id=}, {args=}, {kwargs=}, {einfo=}')
+
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        print(f'failure: {exc=}, {task_id=}, {args=}, {kwargs=}, {einfo=}')
+
+
+@app.task(bind=True, base=BaseTask)
+def count(self):
+    COUNT = 3
+    for i in range(0, COUNT):
+        print(f'{COUNT - i}...')
+        sleep(1)
+    print('BOMB!!')

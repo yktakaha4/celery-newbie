@@ -5,6 +5,14 @@
 install:
 	poetry install
 
+.PHONY: up
+up:
+	docker-compose up --build
+
+.PHONY: down
+down:
+	docker-compose down
+
 .PHONY: makemigrations
 makemigrations:
 	poetry run ./manage.py makemigrations
@@ -15,7 +23,7 @@ migrate:
 
 .PHONY: runserver
 runserver:
-	poetry run ./manage.py runserver
+	poetry run ./manage.py runserver 0.0.0.0:8000
 
 .PHONY: shell
 shell:
@@ -25,5 +33,12 @@ shell:
 format:
 	poetry run black .
 
+.PHONY: django
+django: migrate runserver
+
+.PHONY: celery
+celery:
+	poetry run celery -A proj worker -l info
+
 .PHONY: dev
-dev: migrate runserver
+dev: down up
